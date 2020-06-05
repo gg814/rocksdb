@@ -25,6 +25,7 @@ class DBTest2 : public DBTestBase {
   DBTest2() : DBTestBase("/db_test2") {}
 };
 
+#ifndef ROCKSDB_LITE
 TEST_F(DBTest2, OpenForReadOnly) {
   DB* db_ptr = nullptr;
   std::string dbname = test::PerThreadDBPath("db_readonly");
@@ -36,6 +37,7 @@ TEST_F(DBTest2, OpenForReadOnly) {
   // We first get the list files under <dbname>
   // There should not be any subdirectories -- this is not checked here
   std::vector<std::string> files;
+  ASSERT_OK(env_->FileExists(dbname));
   ASSERT_OK(env_->GetChildren(dbname, &files));
   for (auto& f : files) {
     if (f != "." && f != "..") {
@@ -85,6 +87,7 @@ TEST_F(DBTest2, OpenForReadOnlyWithColumnFamilies) {
   // With create_if_missing false, there should not be a dir in the file system
   ASSERT_NOK(env_->FileExists(dbname));
 }
+#endif  // ROCKSDB_LITE
 
 class PrefixFullBloomWithReverseComparator
     : public DBTestBase,
